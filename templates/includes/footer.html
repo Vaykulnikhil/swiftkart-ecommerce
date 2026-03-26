@@ -1,0 +1,36 @@
+<footer class="section-footer border-top mt-5">
+    <div class="container">
+        <section class="footer-bottom border-top row align-items-center py-3">
+
+            <div class="col-md-3 text-muted">
+                <p class="mb-0">© 2025 swiftKart</p>
+            </div>
+
+            <div class="col-md-6 text-md-center text-muted">
+                <span class="px-2">support@greatkart.com</span>
+                <span class="px-2">+91 98765 43210</span>
+                <span class="px-2">Pune, Maharashtra, India</span>
+            </div>
+
+            <div class="col-md-3 text-md-right text-muted">
+                <i class="fab fa-lg fa-cc-visa mx-1"></i>
+                <i class="fab fa-lg fa-cc-paypal mx-1"></i>
+                <i class="fab fa-lg fa-cc-mastercard mx-1"></i>
+            </div>
+
+        </section>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script>
+document.querySelectorAll(".thumb a").forEach(function(el){
+    el.addEventListener("click", function(e){
+        e.preventDefault();
+        document.getElementById("mainImage").src = this.href;
+    });
+});
+</script>
+</body>
+</html>

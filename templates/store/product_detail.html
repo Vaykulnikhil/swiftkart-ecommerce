@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="section-content padding-y bg">
+<div class="container">
+
+<!-- ============================ PRODUCT DETAIL CARD ================================= -->
+<div class="card">
+<div class="row no-gutters">
+
+    <!-- Product Image -->
+    <aside class="col-md-6">
+        <article class="gallery-wrap"> 
+            <div class="img-big-wrap mainimage">
+                <center><img src="{{ single_product.images.url }}"></center>
+            </div>
+        </article>  
+        <ul class="thumb">
+
+    <!-- Main product image thumbnail -->
+    <li>
+       <img src="{{ single_product.images.url }}" id="mainProductImage" alt="Product Image">
+    </li>
+
+    <!-- Gallery images -->
+    {% for i in product_gallery %}
+    <li>
+        <a href="{{ i.image.url }}"><img src="{{ i.image.url }}" alt="Product Image">
+        </a>
+    </li>
+    {% endfor %}
+
+</ul>
+    </aside>
+
+    <!-- Product Info -->
+    <main class="col-md-6 border-left">
+        <form action="{% url 'carts:add_cart' single_product.id %}" method="POST">
+            {% csrf_token %}
+            <article class="content-body">
+                <h2 class="title">{{ single_product.product_name }}</h2>
+                    <!-- Average Rating Stars for the product -->
+                    <div class="text-center mb-2">
+                          <span>
+                            {% for i in "12345"|make_list %}
+                                {% if single_product.averageReview >= forloop.counter %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% elif single_product.averageReview >= forloop.counter|add:"-0.5" %}
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    <span>{{single_product.countReview}} Reviews</span>
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                            
+                        </div>
+                    <!-- Product Price -->
+                    <div class="mb-3"> 
+                        <var class="price h4">$ {{ single_product.price }}</var> 
+                    </div> 
+
+                    <!-- Description -->
+                <p>{{ single_product.description }}</p>
+                <hr>
+                <!-- Color -->
+                <div class="row">
+                    <div class="item-option-select">
+                        <h6>Choose Color</h6>
+                        <select name="color" class="form-control" required>
+                            <option value="" disabled selected>Select</option>
+                            {% for i in single_product.variation_set.colors %}
+                                <option value="{{ i.variation_value|lower }}">
+                                    {{ i.variation_value|capfirst }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Size -->
+                <div class="row mt-2">
+                    <div class="item-option-select">
+                        <h6>Select Size</h6>
+                        <select name="size" class="form-control" required>
+                            <option value="" disabled selected>Select</option>
+                            {% for i in single_product.variation_set.sizes %}
+                                <option value="{{ i.variation_value|lower }}">
+                                    {{ i.variation_value|capfirst }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <hr>
+
+                {% if single_product.stock <= 0 %}
+                    <h5 class="text-danger">Out of Stock</h5>
+                {% else %}
+                    <button type="submit" class="btn btn-primary mt-3">
+                        <span class="text">Add to cart</span>
+                        <i class="fas fa-shopping-cart"></i>
+                    </button>
+                {% endif %}
+
+            </article>
+        </form>
+    </main>
+
+</div>
+</div>
+
+<br>
+
+<!-- ============================ CUSTOMER REVIEWS ================================= -->
+<div class="row">
+<div class="col-md-9">
+
+    <!-- Review Form -->
+    <form action="{% url 'submit_review' single_product.id %}" method="POST">
+        {% csrf_token %}
+
+        <h5>Write Your Review</h5>
+        <label class="d-block">How do you rate this product?</label>
+        <div class="rate">
+
+            <input type="radio" name="rating" id="rating10" value="5" required><label for="rating10"></label>
+            <input type="radio" name="rating" id="rating9" value="4.5"><label for="rating9" class="half"></label>
+            <input type="radio" name="rating" id="rating8" value="4"><label for="rating8"></label>
+            <input type="radio" name="rating" id="rating7" value="3.5"><label for="rating7" class="half"></label>
+            <input type="radio" name="rating" id="rating6" value="3"><label for="rating6"></label>
+            <input type="radio" name="rating" id="rating5" value="2.5"><label for="rating5" class="half"></label>
+            <input type="radio" name="rating" id="rating4" value="2"><label for="rating4"></label>
+            <input type="radio" name="rating" id="rating3" value="1.5"><label for="rating3" class="half"></label>
+            <input type="radio" name="rating" id="rating2" value="1"><label for="rating2"></label>
+            <input type="radio" name="rating" id="rating1" value="0.5"><label for="rating1" class="half"></label>
+
+        </div>
+
+        <br>
+        Review Title:
+        <input type="text" class="form-control" name="subject">
+        <br>
+        Review:
+        <textarea name="review" rows="4" class="form-control"></textarea>
+        <br>
+        {% if user.is_authenticated %}
+            {% if orderproduct %}
+                <input type="submit" value="Submit Review" class="btn btn-primary">
+            {% else %}
+                <p>You must purchase this product to post a review.</p>
+            {% endif %}
+         {% else %}
+            <p>
+                You must be logged in to post a review.
+                <a href="{% url 'accounts:login' %}">Login now</a>
+            </p>
+        {% endif %}
+
+        {% include 'includes/alerts.html' %}
+
+    </form>
+
+    <br>
+
+    <!-- Display Reviews -->
+<header class="section-heading">
+<h3>Customer Reviews </h3> 
+<span>
+{% for i in "12345"|make_list %}
+    {% if single_product.averageReview >= forloop.counter %}
+        <i class="fa fa-star text-warning"></i>
+    {% elif single_product.averageReview >= forloop.counter|add:"-0.5" %}
+        <i class="fa fa-star-half-o text-warning"></i>
+    {% else %}
+        <i class="fa fa-star-o text-warning"></i>
+        <span>{{single_product.countReview}} Reviews</span>
+    {% endif %}
+{% endfor %}
+</span>
+</header>
+
+    {% for review in reviews %}
+
+        <article class="box mb-3">
+            <div class="icontext w-100">
+                <div>
+
+                    <!-- Stars -->
+                    {% for i in "12345"|make_list %}
+                        {% if review.rating >= forloop.counter %}
+                            <i class="fa fa-star text-warning"></i>
+                        {% elif review.rating >= forloop.counter|add:"-0.5" %}
+                            <i class="fa fa-star-half-o text-warning"></i>
+                        {% else %}
+                            <i class="fa fa-star-o text-warning"></i>
+                        <!-- {% endif %} -->
+                    {% endfor %}
+
+                    <h6 class="mt-2">{{ review.subject }}</h6>
+                    <p>{{ review.review }}</p>
+                    <small class="text-muted">
+                        {{ review.user.full_name }} |
+                        {{ review.updated_at }}
+                    </small>
+
+                </div>
+            </div>
+        </article>
+
+    {% empty %}
+        <p>No reviews yet.</p>
+    {% endfor %}
+
+</div>
+</div>
+
+</div>
+</section>
+
+{% endblock %}
